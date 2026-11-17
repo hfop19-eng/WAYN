@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "493536041808",
+    "project_id": "wayn-iqq",
+    "storage_bucket": "wayn-iqq.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:493536041808:android:acb6515a91908a660c2a55",
+        "android_client_info": {
+          "package_name": "com.wayn.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUAJPXQZk52T7Ja54SHnWO3PwVP_DmOoo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
