@@ -17,27 +17,45 @@ class _LoginScreenState extends State<LoginScreen> {
   bool loading = false;
 
   Future<void> login() async {
-    if (emailController.text.trim().isEmpty ||
-        passwordController.text.isEmpty) {
-      showMessage('يرجى إدخال البريد وكلمة المرور');
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      showMessage('يرجى إدخال البريد الإلكتروني وكلمة المرور');
       return;
     }
 
     setState(() => loading = true);
 
     try {
-      await AppServices.supabase.auth.signInWithPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text,
+      await AppServices.signIn(
+        email: email,
+        password: password,
       );
+
+      final accepted = await AppServices.hasAcceptedCurrentTerms();
 
       if (!mounted) return;
 
+      if (!accepted) {
+        await AppServices.signOut();
+
+        if (!mounted) return;
+
+        showMessage(
+          'يجب الموافقة على الشروط وسياسة الخصوصية الحالية قبل الدخول.',
+        );
+        return;
+      }
+
       Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
-      showMessage('تعذر تسجيل الدخول. تحقق من البيانات وحاول مجدداً.');
+      if (!mounted) return;
+      showMessage('تعذر تسجيل الدخول. تحقق من البيانات والاتصال.');
     } finally {
-      if (mounted) setState(() => loading = false);
+      if (mounted) {
+        setState(() => loading = false);
+      }
     }
   }
 
@@ -57,49 +75,66 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('تسجيل الدخول')),
+      appBar: AppBar(
+        title: const Text('تسجيل الدخول'),
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
             const SizedBox(height: 35),
-            const Icon(Icons.location_on, size: 75, color: Color(0xFF42A5F5)),
+
+            const Icon(
+              Icons.location_on_rounded,
+              size: 75,
+              color: Color(0xFF42A5F5),
+            ),
+
             const SizedBox(height: 20),
+
             const Text(
-              'مرحباً بك في WAYN',
+              'مرحباً بعودتك إلى WAYN',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 10),
-            const Text(
-              'سجّل دخولك لاكتشاف ما حولك',
-              textAlign: TextAlign.center,
-            ),
+
             const SizedBox(height: 35),
+
             CustomTextField(
               label: 'البريد الإلكتروني',
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
               prefixIcon: const Icon(Icons.email_outlined),
             ),
+
             const SizedBox(height: 20),
+
             CustomTextField(
               label: 'كلمة المرور',
               controller: passwordController,
               obscureText: true,
               prefixIcon: const Icon(Icons.lock_outline),
             ),
+
             const SizedBox(height: 28),
+
             CustomButton(
               text: 'تسجيل الدخول',
               loading: loading,
               onPressed: login,
             ),
+
             const SizedBox(height: 18),
+
             TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/register');
-              },
+              onPressed: loading
+                  ? null
+                  : () {
+                      Navigator.pushNamed(context, '/register');
+                    },
               child: const Text('ليس لديك حساب؟ أنشئ حساباً جديداً'),
             ),
           ],
