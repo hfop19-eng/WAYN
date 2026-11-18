@@ -34,17 +34,23 @@ class WaynPost {
 class WaynReport {
   final String id;
   final String userId;
-  final String type;
+  final String category;
+  final String title;
   final String description;
+  final String? area;
   final String? imageUrl;
+  final String status;
   final DateTime createdAt;
 
   WaynReport({
     required this.id,
     required this.userId,
-    required this.type,
+    required this.category,
+    required this.title,
     required this.description,
+    this.area,
     this.imageUrl,
+    required this.status,
     required this.createdAt,
   });
 
@@ -52,9 +58,12 @@ class WaynReport {
     return WaynReport(
       id: json['id'].toString(),
       userId: json['user_id']?.toString() ?? '',
-      type: json['type']?.toString() ?? 'other',
+      category: json['category']?.toString() ?? 'other',
+      title: json['title']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
+      area: json['area']?.toString(),
       imageUrl: json['image_url']?.toString(),
+      status: json['status']?.toString() ?? 'pending',
       createdAt: DateTime.tryParse(
             json['created_at']?.toString() ?? '',
           ) ??
