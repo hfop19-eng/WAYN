@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import '../services.dart';
 import '../widgets/custom_button.dart';
@@ -18,16 +19,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool loading = false;
   bool acceptedTerms = false;
 
-  static const String termsVersion = '1.0';
-  static const String privacyVersion = '1.0';
-
   Future<void> register() async {
     final username = usernameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text;
 
     if (username.isEmpty || email.isEmpty || password.length < 6) {
-      showMessage('يرجى إكمال جميع البيانات');
+      showMessage('يرجى إكمال البيانات والتأكد من كلمة المرور');
       return;
     }
 
@@ -39,28 +37,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => loading = true);
 
     try {
-      await AppServices.supabase.auth.signUp(
+      final response = await AppServices.signUp(
         email: email,
         password: password,
-        data: {
-          'username': username,
-          'accepted_terms': true,
-          'terms_version': termsVersion,
-          'privacy_version': privacyVersion,
-          'accepted_at': DateTime.now().toUtc().toIso8601String(),
-        },
+        username: username,
       );
 
       if (!mounted) return;
 
+      if (response.user == null) {
+        showMessage('لم يكتمل إنشاء الحساب. حاول مرة أخرى.');
+        return;
+      }
+
       showMessage(
-        'تم إرسال طلب إنشاء الحساب. تحقق من بريدك إذا طُلب منك ذلك.',
+        response.session == null
+            ? 'تم إنشاء الحساب. تحقق من بريدك الإلكتروني إذا طُلب منك ذلك.'
+            : 'تم إنشاء الحساب بنجاح. يمكنك تسجيل الدخول.',
       );
+
       Navigator.pop(context);
     } catch (e) {
-      showMessage('تعذر إنشاء الحساب. تحقق من البيانات وحاول مجدداً.');
+      if (!mounted) return;
+
+      showMessage(
+        'تعذر إنشاء الحساب. تحقق من البريد الإلكتروني وحاول مجدداً.',
+      );
     } finally {
-      if (mounted) setState(() => loading = false);
+      if (mounted) {
+        setState(() => loading = false);
+      }
     }
   }
 
@@ -103,7 +109,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('إنشاء حساب')),
+      appBar: AppBar(
+        title: const Text('إنشاء حساب'),
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(24),
