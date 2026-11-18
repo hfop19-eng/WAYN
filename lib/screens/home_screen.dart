@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import 'map_screen.dart';
+import 'community_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<Widget> pages = [
     const DiscoverPage(),
     const MapScreen(),
-    const Center(child: Text('المجتمع')),
+    const CommunityScreen(),
     const Center(child: Text('حسابي')),
   ];
 
@@ -32,9 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
         onDestinationSelected: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
+          setState(() => selectedIndex = index);
         },
         destinations: const [
           NavigationDestination(
@@ -152,30 +151,12 @@ class DiscoverPage extends StatelessWidget {
           spacing: 10,
           runSpacing: 10,
           children: const [
-            CategoryChip(
-              icon: Icons.restaurant,
-              title: 'مطاعم',
-            ),
-            CategoryChip(
-              icon: Icons.local_cafe,
-              title: 'مقاهي',
-            ),
-            CategoryChip(
-              icon: Icons.park,
-              title: 'حدائق',
-            ),
-            CategoryChip(
-              icon: Icons.event,
-              title: 'فعاليات',
-            ),
-            CategoryChip(
-              icon: Icons.school,
-              title: 'دراسة',
-            ),
-            CategoryChip(
-              icon: Icons.shopping_bag,
-              title: 'تسوق',
-            ),
+            CategoryChip(icon: Icons.restaurant, title: 'مطاعم'),
+            CategoryChip(icon: Icons.local_cafe, title: 'مقاهي'),
+            CategoryChip(icon: Icons.park, title: 'حدائق'),
+            CategoryChip(icon: Icons.event, title: 'فعاليات'),
+            CategoryChip(icon: Icons.school, title: 'دراسة'),
+            CategoryChip(icon: Icons.shopping_bag, title: 'تسوق'),
           ],
         ),
         const SizedBox(height: 28),
@@ -215,10 +196,7 @@ class CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      avatar: Icon(
-        icon,
-        color: WaynTheme.primary,
-      ),
+      avatar: Icon(icon, color: WaynTheme.primary),
       label: Text(title),
       backgroundColor: Colors.white,
       side: BorderSide.none,
@@ -245,18 +223,12 @@ class UpdateCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor:
-              WaynTheme.primary.withOpacity(0.12),
-          child: Icon(
-            icon,
-            color: WaynTheme.primary,
-          ),
+          backgroundColor: WaynTheme.primary.withOpacity(0.12),
+          child: Icon(icon, color: WaynTheme.primary),
         ),
         title: Text(
           title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(description),
         trailing: const Icon(
