@@ -1,3 +1,4 @@
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AppServices {
@@ -8,6 +9,7 @@ class AppServices {
   static const String currentTermsVersion = '1.0';
   static const String currentPrivacyVersion = '1.0';
 
+  // إنشاء حساب
   static Future<AuthResponse> signUp({
     required String email,
     required String password,
@@ -26,6 +28,7 @@ class AppServices {
     );
   }
 
+  // تسجيل الدخول
   static Future<AuthResponse> signIn({
     required String email,
     required String password,
@@ -36,10 +39,12 @@ class AppServices {
     );
   }
 
+  // تسجيل الخروج
   static Future<void> signOut() async {
     await supabase.auth.signOut();
   }
 
+  // التحقق من الموافقة على الشروط
   static Future<bool> hasAcceptedCurrentTerms() async {
     final user = currentUser;
 
@@ -56,6 +61,7 @@ class AppServices {
     return response.isNotEmpty;
   }
 
+  // جلب منشورات المجتمع
   static Future<List<Map<String, dynamic>>> getPosts() async {
     final response = await supabase
         .from('posts')
@@ -65,23 +71,38 @@ class AppServices {
     return List<Map<String, dynamic>>.from(response);
   }
 
+  // إنشاء منشور جديد
   static Future<void> createPost({
     required String title,
-    required String description,
+    required String content,
+    String? imageUrl,
+    String? area,
   }) async {
+    final user = currentUser;
+
+    if (user == null) {
+      throw Exception('يجب تسجيل الدخول أولاً');
+    }
+
     await supabase.from('posts').insert({
+      'user_id': user.id,
       'title': title,
-      'description': description,
-      'user_id': currentUser?.id,
+      'content': content,
+      'image_url': imageUrl,
+      'area': area,
     });
   }
 
+  // جلب الأماكن
   static Future<List<Map<String, dynamic>>> getPlaces() async {
-    final response = await supabase.from('places').select();
+    final response = await supabase
+        .from('places')
+        .select();
 
     return List<Map<String, dynamic>>.from(response);
   }
 
+  // جلب البلاغات
   static Future<List<Map<String, dynamic>>> getReports() async {
     final response = await supabase
         .from('reports')
