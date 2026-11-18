@@ -1,3 +1,4 @@
+
 class WaynPost {
   final String id;
   final String userId;
@@ -19,9 +20,9 @@ class WaynPost {
     return WaynPost(
       id: json['id'].toString(),
       userId: json['user_id']?.toString() ?? '',
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
-      imageUrl: json['image_url'],
+      title: json['title']?.toString() ?? '',
+      description: (json['content'] ?? json['description'] ?? '').toString(),
+      imageUrl: json['image_url']?.toString(),
       createdAt: DateTime.tryParse(
             json['created_at']?.toString() ?? '',
           ) ??
@@ -51,9 +52,9 @@ class WaynReport {
     return WaynReport(
       id: json['id'].toString(),
       userId: json['user_id']?.toString() ?? '',
-      type: json['type'] ?? 'other',
-      description: json['description'] ?? '',
-      imageUrl: json['image_url'],
+      type: json['type']?.toString() ?? 'other',
+      description: json['description']?.toString() ?? '',
+      imageUrl: json['image_url']?.toString(),
       createdAt: DateTime.tryParse(
             json['created_at']?.toString() ?? '',
           ) ??
@@ -84,10 +85,10 @@ class WaynPlace {
   factory WaynPlace.fromJson(Map<String, dynamic> json) {
     return WaynPlace(
       id: json['id'].toString(),
-      name: json['name'] ?? '',
-      category: json['category'] ?? 'other',
-      description: json['description'] ?? '',
-      imageUrl: json['image_url'],
+      name: json['name']?.toString() ?? '',
+      category: json['category']?.toString() ?? 'other',
+      description: json['description']?.toString() ?? '',
+      imageUrl: json['image_url']?.toString(),
       latitude: double.tryParse(json['latitude']?.toString() ?? ''),
       longitude: double.tryParse(json['longitude']?.toString() ?? ''),
     );
