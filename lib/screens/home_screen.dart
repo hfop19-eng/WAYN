@@ -1,8 +1,10 @@
 
 import 'package:flutter/material.dart';
+
 import '../theme.dart';
 import 'map_screen.dart';
 import 'community_screen.dart';
+import 'reports_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,47 +16,210 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
 
-  late final List<Widget> pages = [
-    const DiscoverPage(),
-    const MapScreen(),
-    const CommunityScreen(),
-    const Center(child: Text('حسابي')),
+  final List<Widget> pages = const [
+    DiscoverPage(),
+    MapScreen(),
+    ReportsScreen(),
+    CommunityScreen(),
+    AccountPage(),
+  ];
+
+  final List<NavigationDestination> destinations = const [
+    NavigationDestination(
+      icon: Icon(Icons.explore_outlined),
+      selectedIcon: Icon(Icons.explore),
+      label: 'استكشف',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.map_outlined),
+      selectedIcon: Icon(Icons.map),
+      label: 'الخريطة',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.campaign_outlined),
+      selectedIcon: Icon(Icons.campaign),
+      label: 'البلاغات',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.groups_outlined),
+      selectedIcon: Icon(Icons.groups),
+      label: 'المجتمع',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.person_outline),
+      selectedIcon: Icon(Icons.person),
+      label: 'حسابي',
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: IndexedStack(
-          index: selectedIndex,
-          children: pages,
-        ),
+      body: IndexedStack(
+        index: selectedIndex,
+        children: pages,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
         onDestinationSelected: (index) {
-          setState(() => selectedIndex = index);
+          setState(() {
+            selectedIndex = index;
+          });
         },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            selectedIcon: Icon(Icons.explore),
-            label: 'اكتشف',
+        destinations: destinations,
+        backgroundColor: Colors.white,
+        indicatorColor: WaynTheme.primary.withValues(alpha: 0.15),
+        elevation: 3,
+      ),
+    );
+  }
+}
+
+// ================= DISCOVER PAGE =================
+
+class DiscoverPage extends StatelessWidget {
+  const DiscoverPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: WaynTheme.background,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          'WAYN',
+          style: TextStyle(
+            color: Color(0xFF328FE8),
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
           ),
-          NavigationDestination(
-            icon: Icon(Icons.map_outlined),
-            selectedIcon: Icon(Icons.map),
-            label: 'الخريطة',
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.notifications_none,
+              color: Colors.black87,
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.people_outline),
-            selectedIcon: Icon(Icons.people),
-            label: 'المجتمع',
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(18),
+        children: [
+          const Text(
+            'اكتشف الأماكن والفعاليات والتحديثات القريبة منك',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 14,
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'حسابي',
+
+          const SizedBox(height: 22),
+
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF3498F5),
+                  Color(0xFF7969E8),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.location_on,
+                  color: Colors.white,
+                  size: 34,
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'اكتشف ما حولك',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  'أماكن جديدة، عروض، فعاليات وتحديثات محلية',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          const Text(
+            'استكشف حسب التصنيف',
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          const Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              CategoryChip(
+                icon: Icons.restaurant,
+                label: 'مطاعم',
+              ),
+              CategoryChip(
+                icon: Icons.coffee,
+                label: 'مقاهي',
+              ),
+              CategoryChip(
+                icon: Icons.park,
+                label: 'متنزهات',
+              ),
+              CategoryChip(
+                icon: Icons.event,
+                label: 'فعاليات',
+              ),
+              CategoryChip(
+                icon: Icons.menu_book,
+                label: 'أماكن دراسة',
+              ),
+              CategoryChip(
+                icon: Icons.local_offer,
+                label: 'عروض',
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 25),
+
+          const Text(
+            'آخر التحديثات',
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          const UpdateCard(
+            icon: Icons.traffic,
+            title: 'تحديثات الطرق',
+            subtitle: 'تابع حالة الطرق والتنبيهات المحلية',
+          ),
+
+          const UpdateCard(
+            icon: Icons.bolt,
+            title: 'الخدمات المحلية',
+            subtitle: 'شاهد البلاغات والتحديثات في منطقتك',
           ),
         ],
       ),
@@ -62,178 +227,120 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class DiscoverPage extends StatelessWidget {
-  const DiscoverPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        Row(
-          children: [
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'أهلاً بك في',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'WAYN',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: WaynTheme.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.notifications_none,
-                size: 28,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 22),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                Color(0xFF42A5F5),
-                Color(0xFF9575CD),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(22),
-          ),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'وين تروح اليوم؟',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 23,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'اكتشف الأماكن والأحداث القريبة منك',
-                style: TextStyle(color: Colors.white),
-              ),
-              SizedBox(height: 15),
-              Icon(
-                Icons.travel_explore,
-                color: Colors.white,
-                size: 45,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 25),
-        const Text(
-          'استكشف التصنيفات',
-          style: TextStyle(
-            fontSize: 19,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 15),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: const [
-            CategoryChip(icon: Icons.restaurant, title: 'مطاعم'),
-            CategoryChip(icon: Icons.local_cafe, title: 'مقاهي'),
-            CategoryChip(icon: Icons.park, title: 'حدائق'),
-            CategoryChip(icon: Icons.event, title: 'فعاليات'),
-            CategoryChip(icon: Icons.school, title: 'دراسة'),
-            CategoryChip(icon: Icons.shopping_bag, title: 'تسوق'),
-          ],
-        ),
-        const SizedBox(height: 28),
-        const Text(
-          'آخر المستجدات',
-          style: TextStyle(
-            fontSize: 19,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 12),
-        const UpdateCard(
-          icon: Icons.traffic,
-          title: 'حالة الطرق',
-          description: 'تابع تحديثات الطرق والازدحام في منطقتك',
-        ),
-        const UpdateCard(
-          icon: Icons.campaign_outlined,
-          title: 'بلاغات المجتمع',
-          description: 'شاهد آخر البلاغات والمعلومات المحلية',
-        ),
-      ],
-    );
-  }
-}
+// ================= CATEGORY CHIP =================
 
 class CategoryChip extends StatelessWidget {
   final IconData icon;
-  final String title;
+  final String label;
 
   const CategoryChip({
     super.key,
     required this.icon,
-    required this.title,
+    required this.label,
   });
 
   @override
   Widget build(BuildContext context) {
     return Chip(
-      avatar: Icon(icon, color: WaynTheme.primary),
-      label: Text(title),
+      avatar: Icon(
+        icon,
+        color: const Color(0xFF328FE8),
+        size: 19,
+      ),
+      label: Text(label),
       backgroundColor: Colors.white,
       side: BorderSide.none,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 9,
+      ),
     );
   }
 }
 
+// ================= UPDATE CARD =================
+
 class UpdateCard extends StatelessWidget {
   final IconData icon;
   final String title;
-  final String description;
+  final String subtitle;
 
   const UpdateCard({
     super.key,
     required this.icon,
     required this.title,
-    required this.description,
+    required this.subtitle,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      color: Colors.white,
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: WaynTheme.primary.withOpacity(0.12),
-          child: Icon(icon, color: WaynTheme.primary),
+          backgroundColor: const Color(0xFFE8F3FF),
+          child: Icon(
+            icon,
+            color: const Color(0xFF328FE8),
+          ),
         ),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        subtitle: Text(description),
+        subtitle: Text(subtitle),
         trailing: const Icon(
-          Icons.arrow_forward_ios,
-          size: 15,
+          Icons.arrow_back_ios_new,
+          size: 16,
+        ),
+      ),
+    );
+  }
+}
+
+// ================= ACCOUNT PAGE =================
+
+class AccountPage extends StatelessWidget {
+  const AccountPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: WaynTheme.background,
+      appBar: AppBar(
+        title: const Text('حسابي'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 42,
+              child: Icon(
+                Icons.person,
+                size: 45,
+              ),
+            ),
+            SizedBox(height: 15),
+            Text(
+              'حساب WAYN',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'صفحة الحساب قيد التطوير',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
         ),
       ),
     );
