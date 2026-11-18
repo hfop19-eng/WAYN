@@ -1,9 +1,9 @@
+
 import com.android.build.api.dsl.ApplicationExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
     id("com.google.gms.google-services")
 }
