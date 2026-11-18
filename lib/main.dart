@@ -1,8 +1,31 @@
 
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
 
-void main() {
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'config.dart';
+import 'services.dart';
+import 'theme.dart';
+import 'language_service.dart';
+
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
+import 'screens/consent_screen.dart';
+import 'screens/home_screen.dart';
+
+final LanguageService languageService = LanguageService();
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: AppConfig.supabaseUrl,
+    anonKey: AppConfig.supabaseAnonKey,
+  );
+
+  await languageService.loadLanguage();
+
   runApp(const WAYNApp());
 }
 
@@ -11,18 +34,28 @@ class WAYNApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'WAYN',
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF5F7FC),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF3298F5),
-        ),
-        fontFamily: 'Roboto',
-      ),
-      home: const IntroScreen(),
+    return AnimatedBuilder(
+      animation: languageService,
+      builder: (context, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'WAYN',
+          theme: WaynTheme.light,
+          locale: languageService.locale,
+          supportedLocales: const [
+            Locale('ar'),
+            Locale('ku'),
+            Locale('en'),
+          ],
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/register': (context) => const RegisterScreen(),
+            '/consent': (context) => const ConsentScreen(),
+            '/home': (context) => const HomeScreen(),
+          },
+          home: const IntroScreen(),
+        );
+      },
     );
   }
 }
@@ -39,6 +72,7 @@ class IntroScreen extends StatefulWidget {
 class _IntroScreenState extends State<IntroScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController controller;
+  bool isNavigating = false;
 
   final List<IconData> icons = [
     Icons.location_on_rounded,
@@ -52,14 +86,14 @@ class _IntroScreenState extends State<IntroScreen>
   ];
 
   final List<Color> iconColors = [
-    Color(0xFF168BF0),
-    Color(0xFF7564D9),
-    Color(0xFF3198F5),
-    Color(0xFF254D91),
-    Color(0xFF168BF0),
-    Color(0xFF45A9A0),
-    Color(0xFF8065E9),
-    Color(0xFF3198F5),
+    const Color(0xFF168BF0),
+    const Color(0xFF7564D9),
+    const Color(0xFF3198F5),
+    const Color(0xFF254D91),
+    const Color(0xFF168BF0),
+    const Color(0xFF45A9A0),
+    const Color(0xFF8065E9),
+    const Color(0xFF3198F5),
   ];
 
   @override
@@ -73,15 +107,42 @@ class _IntroScreenState extends State<IntroScreen>
 
     controller.addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => const HomePage(),
-          ),
-        );
+        openNextScreen();
       }
     });
 
     controller.forward();
+  }
+
+  Future<void> openNextScreen() async {
+    if (isNavigating || !mounted) return;
+
+    isNavigating = true;
+
+    Widget nextScreen;
+
+    if (AppServices.currentUser == null) {
+      nextScreen = const LoginScreen();
+    } else {
+      try {
+        final accepted =
+            await AppServices.hasAcceptedCurrentTerms();
+
+        nextScreen = accepted
+            ? const HomeScreen()
+            : const ConsentScreen();
+      } catch (e) {
+        nextScreen = const ConsentScreen();
+      }
+    }
+
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => nextScreen,
+      ),
+    );
   }
 
   @override
@@ -97,31 +158,32 @@ class _IntroScreenState extends State<IntroScreen>
     double radius,
     double progress,
   ) {
-    final angle = (index * math.pi / 4) +
-        (progress * math.pi * 4);
+    final angle =
+        (index * math.pi / 4) + (progress * math.pi * 4);
 
     final gather = Curves.easeInOutCubic.transform(
-      ((progress - 0.53) / 0.35).clamp(0.0, 1.0),
+      ((progress - 0.53) / 0.35)
+          .clamp(0.0, 1.0)
+          .toDouble(),
     );
 
     final currentRadius = radius * (1 - gather);
 
     final fade = 1 -
         Curves.easeIn.transform(
-          ((progress - 0.78) / 0.18).clamp(0.0, 1.0),
+          ((progress - 0.78) / 0.18)
+              .clamp(0.0, 1.0)
+              .toDouble(),
         );
 
-    final x = centerX +
-        math.cos(angle) * currentRadius;
-
-    final y = centerY +
-        math.sin(angle) * currentRadius;
+    final x = centerX + math.cos(angle) * currentRadius;
+    final y = centerY + math.sin(angle) * currentRadius;
 
     return Positioned(
       left: x - 24,
       top: y - 24,
       child: Opacity(
-        opacity: fade,
+        opacity: fade.clamp(0.0, 1.0).toDouble(),
         child: Transform.rotate(
           angle: angle * -0.3,
           child: Container(
@@ -160,14 +222,18 @@ class _IntroScreenState extends State<IntroScreen>
         builder: (context, child) {
           final progress = controller.value;
 
-          final logoProgress = Curves.easeOutBack.transform(
-            ((progress - 0.70) / 0.25).clamp(0.0, 1.0),
+          final logoProgress =
+              Curves.easeOutBack.transform(
+            ((progress - 0.70) / 0.25)
+                .clamp(0.0, 1.0)
+                .toDouble(),
           );
 
           return LayoutBuilder(
             builder: (context, constraints) {
               final centerX = constraints.maxWidth / 2;
               final centerY = constraints.maxHeight / 2;
+
               final radius = math.min(
                     constraints.maxWidth,
                     constraints.maxHeight,
@@ -191,7 +257,6 @@ class _IntroScreenState extends State<IntroScreen>
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // Soft background glow
                     Container(
                       width: 260,
                       height: 260,
@@ -208,7 +273,6 @@ class _IntroScreenState extends State<IntroScreen>
                       ),
                     ),
 
-                    // Circular orbit
                     Transform.scale(
                       scale: 0.92 + (progress * 0.08),
                       child: Container(
@@ -225,7 +289,6 @@ class _IntroScreenState extends State<IntroScreen>
                       ),
                     ),
 
-                    // Orbiting icons
                     ...List.generate(
                       icons.length,
                       (index) => buildFloatingIcon(
@@ -237,7 +300,6 @@ class _IntroScreenState extends State<IntroScreen>
                       ),
                     ),
 
-                    // Final WAYN logo
                     Opacity(
                       opacity: logoProgress,
                       child: Transform.scale(
@@ -279,9 +341,7 @@ class _IntroScreenState extends State<IntroScreen>
                                 size: 43,
                               ),
                             ),
-
                             const SizedBox(height: 17),
-
                             const Text(
                               'WAYN',
                               style: TextStyle(
@@ -292,9 +352,7 @@ class _IntroScreenState extends State<IntroScreen>
                                 color: Color(0xFF12346F),
                               ),
                             ),
-
                             const SizedBox(height: 10),
-
                             const Text(
                               'وين أروح؟',
                               style: TextStyle(
@@ -313,238 +371,6 @@ class _IntroScreenState extends State<IntroScreen>
             },
           );
         },
-      ),
-    );
-  }
-}
-
-// ================= HOME PAGE =================
-
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  int selectedIndex = 0;
-
-  final List<String> titles = [
-    'اكتشف',
-    'الخريطة',
-    'المجتمع',
-    'حسابي',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: const Text(
-            'WAYN',
-            style: TextStyle(
-              color: Color(0xFF268CE8),
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.notifications_none),
-            ),
-          ],
-        ),
-        body: selectedIndex == 0
-            ? buildDiscover()
-            : Center(
-                child: Text(
-                  titles[selectedIndex],
-                  style: const TextStyle(fontSize: 24),
-                ),
-              ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: selectedIndex,
-          onDestinationSelected: (index) {
-            setState(() => selectedIndex = index);
-          },
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.explore_outlined),
-              selectedIcon: Icon(Icons.explore),
-              label: 'اكتشف',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.map_outlined),
-              selectedIcon: Icon(Icons.map),
-              label: 'الخريطة',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.people_outline),
-              selectedIcon: Icon(Icons.people),
-              label: 'المجتمع',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'حسابي',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildDiscover() {
-    return ListView(
-      padding: const EdgeInsets.all(18),
-      children: [
-        const Text(
-          'وين تروح اليوم؟',
-          style: TextStyle(
-            fontSize: 27,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'اكتشف الأماكن والفعاليات والتحديثات القريبة منك',
-          style: TextStyle(color: Colors.grey, fontSize: 14),
-        ),
-        const SizedBox(height: 22),
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                Color(0xFF3498F5),
-                Color(0xFF7969E8),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(22),
-          ),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.location_on, color: Colors.white, size: 34),
-              SizedBox(height: 12),
-              Text(
-                'اكتشف ما حولك',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 6),
-              Text(
-                'أماكن جديدة، عروض، فعاليات وتحديثات محلية',
-                style: TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        const Text(
-          'استكشف حسب التصنيف',
-          style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 14),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: const [
-            CategoryChip(icon: Icons.restaurant, label: 'مطاعم'),
-            CategoryChip(icon: Icons.coffee, label: 'مقاهي'),
-            CategoryChip(icon: Icons.park, label: 'متنزهات'),
-            CategoryChip(icon: Icons.event, label: 'فعاليات'),
-            CategoryChip(icon: Icons.menu_book, label: 'أماكن دراسة'),
-            CategoryChip(icon: Icons.local_offer, label: 'عروض'),
-          ],
-        ),
-        const SizedBox(height: 25),
-        const Text(
-          'آخر التحديثات',
-          style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        const UpdateCard(
-          icon: Icons.traffic,
-          title: 'تحديثات الطرق',
-          subtitle: 'تابع حالة الطرق والتنبيهات المحلية',
-        ),
-        const UpdateCard(
-          icon: Icons.bolt,
-          title: 'الخدمات المحلية',
-          subtitle: 'شاهد البلاغات والتحديثات في منطقتك',
-        ),
-      ],
-    );
-  }
-}
-
-// ================= CATEGORY CHIP =================
-
-class CategoryChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const CategoryChip({
-    super.key,
-    required this.icon,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      avatar: Icon(icon, color: const Color(0xFF328FE8), size: 19),
-      label: Text(label),
-      backgroundColor: Colors.white,
-      side: BorderSide.none,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
-    );
-  }
-}
-
-// ================= UPDATE CARD =================
-
-class UpdateCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  const UpdateCard({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 10),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: const Color(0xFFE8F3FF),
-          child: Icon(icon, color: const Color(0xFF328FE8)),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(subtitle),
-        trailing: const Icon(
-          Icons.arrow_back_ios_new,
-          size: 16,
-        ),
       ),
     );
   }
