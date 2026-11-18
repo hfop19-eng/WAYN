@@ -1,5 +1,7 @@
+
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import 'map_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,23 +13,28 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
 
-  final List<Widget> pages = const [
-    DiscoverPage(),
-    Center(child: Text('الخريطة')),
-    Center(child: Text('المجتمع')),
-    Center(child: Text('حسابي')),
+  late final List<Widget> pages = [
+    const DiscoverPage(),
+    const MapScreen(),
+    const Center(child: Text('المجتمع')),
+    const Center(child: Text('حسابي')),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: pages[selectedIndex],
+        child: IndexedStack(
+          index: selectedIndex,
+          children: pages,
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
         onDestinationSelected: (index) {
-          setState(() => selectedIndex = index);
+          setState(() {
+            selectedIndex = index;
+          });
         },
         destinations: const [
           NavigationDestination(
@@ -88,7 +95,10 @@ class DiscoverPage extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {},
-              icon: const Icon(Icons.notifications_none, size: 28),
+              icon: const Icon(
+                Icons.notifications_none,
+                size: 28,
+              ),
             ),
           ],
         ),
@@ -132,25 +142,49 @@ class DiscoverPage extends StatelessWidget {
         const SizedBox(height: 25),
         const Text(
           'استكشف التصنيفات',
-          style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 15),
         Wrap(
           spacing: 10,
           runSpacing: 10,
           children: const [
-            CategoryChip(icon: Icons.restaurant, title: 'مطاعم'),
-            CategoryChip(icon: Icons.local_cafe, title: 'مقاهي'),
-            CategoryChip(icon: Icons.park, title: 'حدائق'),
-            CategoryChip(icon: Icons.event, title: 'فعاليات'),
-            CategoryChip(icon: Icons.school, title: 'دراسة'),
-            CategoryChip(icon: Icons.shopping_bag, title: 'تسوق'),
+            CategoryChip(
+              icon: Icons.restaurant,
+              title: 'مطاعم',
+            ),
+            CategoryChip(
+              icon: Icons.local_cafe,
+              title: 'مقاهي',
+            ),
+            CategoryChip(
+              icon: Icons.park,
+              title: 'حدائق',
+            ),
+            CategoryChip(
+              icon: Icons.event,
+              title: 'فعاليات',
+            ),
+            CategoryChip(
+              icon: Icons.school,
+              title: 'دراسة',
+            ),
+            CategoryChip(
+              icon: Icons.shopping_bag,
+              title: 'تسوق',
+            ),
           ],
         ),
         const SizedBox(height: 28),
         const Text(
           'آخر المستجدات',
-          style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 12),
         const UpdateCard(
@@ -181,7 +215,10 @@ class CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      avatar: Icon(icon, color: WaynTheme.primary),
+      avatar: Icon(
+        icon,
+        color: WaynTheme.primary,
+      ),
       label: Text(title),
       backgroundColor: Colors.white,
       side: BorderSide.none,
@@ -208,15 +245,24 @@ class UpdateCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: WaynTheme.primary.withOpacity(0.12),
-          child: Icon(icon, color: WaynTheme.primary),
+          backgroundColor:
+              WaynTheme.primary.withOpacity(0.12),
+          child: Icon(
+            icon,
+            color: WaynTheme.primary,
+          ),
         ),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         subtitle: Text(description),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 15),
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          size: 15,
+        ),
       ),
     );
   }
