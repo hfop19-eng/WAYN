@@ -31,6 +31,12 @@ extensions.configure<ApplicationExtension> {
         versionCode = flutterVersionCode
         versionName = flutterVersionName
     }
+
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
 }
 
 kotlin {
