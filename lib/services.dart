@@ -9,7 +9,7 @@ class AppServices {
   static const String currentTermsVersion = '1.0';
   static const String currentPrivacyVersion = '1.0';
 
-  // إنشاء حساب
+  // إنشاء حساب وإرسال رمز التحقق
   static Future<AuthResponse> signUp({
     required String email,
     required String password,
@@ -25,6 +25,28 @@ class AppServices {
         'privacy_version': currentPrivacyVersion,
         'accepted_at': DateTime.now().toUtc().toIso8601String(),
       },
+    );
+  }
+
+  // التحقق من رمز البريد الإلكتروني
+  static Future<AuthResponse> verifySignupOtp({
+    required String email,
+    required String token,
+  }) async {
+    return await supabase.auth.verifyOTP(
+      email: email,
+      token: token,
+      type: OtpType.signup,
+    );
+  }
+
+  // إعادة إرسال رمز التحقق
+  static Future<void> resendSignupOtp({
+    required String email,
+  }) async {
+    await supabase.auth.resend(
+      type: OtpType.signup,
+      email: email,
     );
   }
 
