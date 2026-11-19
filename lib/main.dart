@@ -2,12 +2,14 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config.dart';
 import 'services.dart';
 import 'theme.dart';
 import 'language_service.dart';
+import 'kurdish_localizations.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -42,11 +44,22 @@ class WAYNApp extends StatelessWidget {
           title: 'WAYN',
           theme: WaynTheme.light,
           locale: languageService.locale,
+
+          localizationsDelegates: const [
+            KurdishMaterialDelegate(),
+            KurdishWidgetsDelegate(),
+            KurdishCupertinoDelegate(),
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+
           supportedLocales: const [
             Locale('ar'),
             Locale('ku'),
             Locale('en'),
           ],
+
           routes: {
             '/login': (context) => const LoginScreen(),
             '/register': (context) => const RegisterScreen(),
@@ -128,9 +141,8 @@ class _IntroScreenState extends State<IntroScreen>
         final accepted =
             await AppServices.hasAcceptedCurrentTerms();
 
-        nextScreen = accepted
-            ? const HomeScreen()
-            : const ConsentScreen();
+        nextScreen =
+            accepted ? const HomeScreen() : const ConsentScreen();
       } catch (e) {
         nextScreen = const ConsentScreen();
       }
@@ -222,8 +234,7 @@ class _IntroScreenState extends State<IntroScreen>
         builder: (context, child) {
           final progress = controller.value;
 
-          final logoProgress =
-              Curves.easeOutBack.transform(
+          final logoProgress = Curves.easeOutBack.transform(
             ((progress - 0.70) / 0.25)
                 .clamp(0.0, 1.0)
                 .toDouble(),
@@ -272,7 +283,6 @@ class _IntroScreenState extends State<IntroScreen>
                         ],
                       ),
                     ),
-
                     Transform.scale(
                       scale: 0.92 + (progress * 0.08),
                       child: Container(
@@ -288,7 +298,6 @@ class _IntroScreenState extends State<IntroScreen>
                         ),
                       ),
                     ),
-
                     ...List.generate(
                       icons.length,
                       (index) => buildFloatingIcon(
@@ -299,7 +308,6 @@ class _IntroScreenState extends State<IntroScreen>
                         progress,
                       ),
                     ),
-
                     Opacity(
                       opacity: logoProgress,
                       child: Transform.scale(
@@ -320,7 +328,8 @@ class _IntroScreenState extends State<IntroScreen>
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
-                                borderRadius: const BorderRadius.only(
+                                borderRadius:
+                                    const BorderRadius.only(
                                   topLeft: Radius.circular(34),
                                   topRight: Radius.circular(34),
                                   bottomLeft: Radius.circular(34),
