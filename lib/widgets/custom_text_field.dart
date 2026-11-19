@@ -23,7 +23,7 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final int lines = obscureText ? 1 : maxLines;
+    final lines = obscureText ? 1 : maxLines;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -32,47 +32,58 @@ class CustomTextField extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            fontWeight: FontWeight.w600,
             fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF263238),
           ),
         ),
         const SizedBox(height: 8),
         SizedBox(
           width: double.infinity,
           height: lines == 1 ? 58 : null,
-          child: TextField(
-            controller: controller,
-            obscureText: obscureText,
-            keyboardType: keyboardType,
-            maxLines: lines,
-            minLines: 1,
-            textAlignVertical: TextAlignVertical.center,
-            decoration: InputDecoration(
-              hintText: hint,
-              prefixIcon: prefixIcon,
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+          child: Material(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            child: TextFormField(
+              controller: controller,
+              enabled: true,
+              readOnly: false,
+              obscureText: obscureText,
+              keyboardType: keyboardType,
+              maxLines: lines,
+              minLines: 1,
+              textAlignVertical: TextAlignVertical.center,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Color(0xFF263238),
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
-                  color: Color(0xFFCFD8DC),
+              decoration: InputDecoration(
+                hintText: hint,
+                prefixIcon: prefixIcon,
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
                 ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
-                  color: Color(0xFFCFD8DC),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFCFD8DC),
+                  ),
                 ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
-                  color: Color(0xFF42A5F5),
-                  width: 2,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFCFD8DC),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF42A5F5),
+                    width: 2,
+                  ),
                 ),
               ),
             ),
