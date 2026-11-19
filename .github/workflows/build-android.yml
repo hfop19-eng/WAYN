@@ -1,5 +1,5 @@
 
-name: Build WAYN Android
+name: Build WAYN Android Debug
 
 on:
   workflow_dispatch:
@@ -34,12 +34,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build Debug APK
+        run: flutter build apk --debug
 
-      - name: Upload APK
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: WAYN-APK
-          path: build/app/outputs/flutter-apk/app-release.apk
-          
+          name: WAYN-Debug-APK
+          path: build/app/outputs/flutter-apk/app-debug.apk
