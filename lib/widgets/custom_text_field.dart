@@ -23,9 +23,11 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final int lines = obscureText ? 1 : maxLines;
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
@@ -37,12 +39,14 @@ class CustomTextField extends StatelessWidget {
         const SizedBox(height: 8),
         SizedBox(
           width: double.infinity,
+          height: lines == 1 ? 58 : null,
           child: TextField(
             controller: controller,
             obscureText: obscureText,
             keyboardType: keyboardType,
-            maxLines: obscureText ? 1 : maxLines,
+            maxLines: lines,
             minLines: 1,
+            textAlignVertical: TextAlignVertical.center,
             decoration: InputDecoration(
               hintText: hint,
               prefixIcon: prefixIcon,
@@ -50,7 +54,7 @@ class CustomTextField extends StatelessWidget {
               fillColor: Colors.white,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
-                vertical: 16,
+                vertical: 12,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
